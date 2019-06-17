@@ -149,5 +149,10 @@ namespace AudioDashboard
             //var color = Color.FromArgb(255, c.R > 127 ? (byte)0 : (byte)255, c.G > 127 ? (byte)0 : (byte)255, c.B > 127 ? (byte)0 : (byte)255);
             return new SolidColorBrush(color);
         }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            await GetFoldersAsync();
+        }
     }
 }
