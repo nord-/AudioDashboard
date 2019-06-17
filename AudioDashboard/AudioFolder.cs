@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 
@@ -41,5 +42,6 @@ namespace AudioDashboard
     public class AudioFile : FileBase
     {
         public string Extension { get; set; }
+        public StorageFile File { get; set; }
     }
 }

@@ -62,7 +62,7 @@ namespace AudioDashboard
                 button.Background      = clickedItem.BackgroundColor;
                 button.Foreground      = InvertColor(clickedItem.BackgroundColor.Color);
                 button.BorderBrush     = new SolidColorBrush(Colors.White);
-                button.Tag             = file.Path;
+                button.Tag             = file.File;
                 button.Click          += AudioButton_Click;
                 AudioButtonGrid.Children.Add(button);
             }
@@ -71,15 +71,17 @@ namespace AudioDashboard
         private void AudioButton_Click(object sender, RoutedEventArgs e)
         {
             var b = sender as Button;
-            StartPlaying(b.Tag.ToString());
+            StartPlaying((Windows.Storage.StorageFile)b.Tag);
         }
 
-        private void StartPlaying(string file)
+        private void StartPlaying(Windows.Storage.StorageFile file)
         {
             var mediaPlayer = new MediaPlayer();
-            var pathUri = new Uri(file);
-            mediaPlayer.Source = MediaSource.CreateFromUri(pathUri);
-            mediaPlayer.Play();
+            //var pathUri = new Uri(file);
+            //AudioMediaPlayer.Source = MediaSource.CreateFromUri(pathUri);
+            AudioMediaPlayer.Source = MediaSource.CreateFromStorageFile(file);
+            AudioMediaPlayer.AutoPlay = true;
+            //mediaPlayer.Play();
         }
 
         private async Task GetFoldersAsync()
@@ -103,7 +105,8 @@ namespace AudioDashboard
                     {
                         Name      = p.Name,
                         Path      = p.Path,
-                        Extension = p.FileType
+                        Extension = p.FileType,
+                        File      = p
                     }).ToList()
                 };
                 FolderLinks.Add(folder);

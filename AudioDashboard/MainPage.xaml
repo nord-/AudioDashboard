@@ -35,6 +35,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock Text="LJUDKLIPP" Margin="12,12,0,0" Style="{StaticResource BaseTextBlockStyle}"/>
             <VariableSizedWrapGrid x:Name="AudioButtonGrid" Orientation="Horizontal" ItemWidth="160" ItemHeight="160" Grid.Row="1" Margin="10">
@@ -44,6 +45,7 @@
                     </TransitionCollection>
                 </VariableSizedWrapGrid.ChildrenTransitions>
             </VariableSizedWrapGrid>
+            <MediaPlayerElement Grid.Row="2" AreTransportControlsEnabled="True" MaxHeight="200" x:Name="AudioMediaPlayer" />
         </Grid>
 
     </SplitView>
