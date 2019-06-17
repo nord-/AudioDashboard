@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -9,6 +10,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -29,6 +31,7 @@ namespace AudioDashboard
     {
         private const string FolderToken = "PickedFolderToken";
         public ObservableCollection<AudioFolder> FolderLinks { get; private set; } = new ObservableCollection<AudioFolder>();
+        private string _fileLoaded = "";
 
         public MainPage()
         {
@@ -47,14 +50,21 @@ namespace AudioDashboard
 
         private async void NavLinksList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            RefreshAudioFiles((AudioFolder)e.ClickedItem);
+            await RefreshAudioFiles((AudioFolder)e.ClickedItem);
         }
 
-        private void RefreshAudioFiles(AudioFolder clickedItem)
+        private async Task RefreshAudioFiles(AudioFolder clickedItem)
         {
             AudioButtonGrid.Children.Clear();
             foreach (var file in clickedItem.Files)
             {
+                // load files into memory
+                var memoryStream = new InMemoryRandomAccessStream();
+                using (var inputStream = await file.File.OpenReadAsync())
+                {
+                    await RandomAccessStream.CopyAsync(inputStream, memoryStream);
+                }
+
                 // <Button Content     ="Name" Height="150" Width="150" Background="Red" Foreground="White" FontSize="24" />
                 var button             = new Button { Height = 150, Width = 150, FontSize = 24 };
                 // <TextBlock Text     ="Customer Locations" TextWrapping="Wrap" />
@@ -62,26 +72,39 @@ namespace AudioDashboard
                 button.Background      = clickedItem.BackgroundColor;
                 button.Foreground      = InvertColor(clickedItem.BackgroundColor.Color);
                 button.BorderBrush     = new SolidColorBrush(Colors.White);
-                button.Tag             = file.File;
+                button.Tag             = memoryStream;
                 button.Click          += AudioButton_Click;
+                button.ContextRequested += AudioButton_ContextRequested;
                 AudioButtonGrid.Children.Add(button);
             }
+        }
+
+        private void AudioButton_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            var b = sender as Button;
+            LoadMediaFromTag(b);
+            Debug.WriteLine(_fileLoaded);
+        }
+
+        private void LoadMediaFromTag(Button b)
+        {
+            AudioMediaPlayer.AutoPlay = false;
+            AudioMediaPlayer.Source = MediaSource.CreateFromStream((InMemoryRandomAccessStream)b.Tag, "audio/mpeg");
+            _fileLoaded = ((TextBlock)b.Content).Text;
         }
 
         private void AudioButton_Click(object sender, RoutedEventArgs e)
         {
             var b = sender as Button;
-            StartPlaying((Windows.Storage.StorageFile)b.Tag);
-        }
+            Debug.WriteLine($"{_fileLoaded} {((TextBlock)b.Content).Text}");
 
-        private void StartPlaying(Windows.Storage.StorageFile file)
-        {
-            var mediaPlayer = new MediaPlayer();
-            //var pathUri = new Uri(file);
-            //AudioMediaPlayer.Source = MediaSource.CreateFromUri(pathUri);
-            AudioMediaPlayer.Source = MediaSource.CreateFromStorageFile(file);
-            AudioMediaPlayer.AutoPlay = true;
-            //mediaPlayer.Play();
+            if (AudioMediaPlayer.Source == null || ((MediaSource)AudioMediaPlayer.Source).State != MediaSourceState.Opened
+                || _fileLoaded != ((TextBlock)b.Content).Text)
+            {
+                LoadMediaFromTag(b);
+            }
+
+            AudioMediaPlayer.MediaPlayer.Play();
         }
 
         private async Task GetFoldersAsync()
