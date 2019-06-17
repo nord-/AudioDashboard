@@ -15,7 +15,7 @@
 
   <Properties>
     <DisplayName>AudioDashboard</DisplayName>
-    <PublisherDisplayName>ricka</PublisherDisplayName>
+    <PublisherDisplayName>Rickard Nord</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -39,6 +39,9 @@
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/>
+          <uap:Rotation Preference="landscapeFlipped"/></uap:InitialRotationPreference>
       </uap:VisualElements>
     </Application>
   </Applications>

@@ -7,6 +7,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Media.Core;
+using Windows.Media.Playback;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -42,9 +45,41 @@ namespace AudioDashboard
             }
         }
 
-        private async void Audio1button_Click(object sender, RoutedEventArgs e)
+        private async void NavLinksList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await SelectBaseFolder();
+            RefreshAudioFiles((AudioFolder)e.ClickedItem);
+        }
+
+        private void RefreshAudioFiles(AudioFolder clickedItem)
+        {
+            AudioButtonGrid.Children.Clear();
+            foreach (var file in clickedItem.Files)
+            {
+                // <Button Content     ="Name" Height="150" Width="150" Background="Red" Foreground="White" FontSize="24" />
+                var button             = new Button { Height = 150, Width = 150, FontSize = 24 };
+                // <TextBlock Text     ="Customer Locations" TextWrapping="Wrap" />
+                button.Content         = new TextBlock { Text = file.Name, TextWrapping = TextWrapping.WrapWholeWords };
+                button.Background      = clickedItem.BackgroundColor;
+                button.Foreground      = InvertColor(clickedItem.BackgroundColor.Color);
+                button.BorderBrush     = new SolidColorBrush(Colors.White);
+                button.Tag             = file.Path;
+                button.Click          += AudioButton_Click;
+                AudioButtonGrid.Children.Add(button);
+            }
+        }
+
+        private void AudioButton_Click(object sender, RoutedEventArgs e)
+        {
+            var b = sender as Button;
+            StartPlaying(b.Tag.ToString());
+        }
+
+        private void StartPlaying(string file)
+        {
+            var mediaPlayer = new MediaPlayer();
+            var pathUri = new Uri(file);
+            mediaPlayer.Source = MediaSource.CreateFromUri(pathUri);
+            mediaPlayer.Play();
         }
 
         private async Task GetFoldersAsync()
@@ -93,6 +128,23 @@ namespace AudioDashboard
             {
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(FolderToken);
             }
+        }
+
+        //private SolidColorBrush InvertColor(Color color)
+        //{
+        //    var newColorBrush = new SolidColorBrush( Color.FromArgb(255, Convert.ToByte(255-color.R), Convert.ToByte(255-color.G),Convert.ToByte(255-color.B)));
+        //    return newColorBrush;
+        //}
+
+        public SolidColorBrush InvertColor(Color c)
+        {
+
+            //var l = 0.2126 * c.ScR + 0.7152 * c.ScG + 0.0722 * c.ScB;
+            //return l < 0.5 ? Brushes.White : Brushes.Black;
+            double Y = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B;
+            var color = (Y/255.0) > 0.5 ? Colors.Black : Colors.White;
+            //var color = Color.FromArgb(255, c.R > 127 ? (byte)0 : (byte)255, c.G > 127 ? (byte)0 : (byte)255, c.B > 127 ? (byte)0 : (byte)255);
+            return new SolidColorBrush(color);
         }
     }
 }
