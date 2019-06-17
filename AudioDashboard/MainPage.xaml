@@ -35,6 +35,12 @@
                         <TextBlock Text="Refresh" Margin="24,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+                <Button Grid.Row="2" Margin="0,24,14,24" HorizontalAlignment="Right" Click="ChangeButton_Click">
+                    <StackPanel Orientation="Horizontal"  >
+                        <SymbolIcon Symbol="OpenFile" />
+                        <TextBlock Text="Change" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
             </Grid>
         </SplitView.Pane>

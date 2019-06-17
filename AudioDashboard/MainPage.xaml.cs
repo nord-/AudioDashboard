@@ -1,32 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Media.Core;
-using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace AudioDashboard
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private const string FolderToken = "PickedFolderToken";
@@ -156,26 +142,22 @@ namespace AudioDashboard
             }
         }
 
-        //private SolidColorBrush InvertColor(Color color)
-        //{
-        //    var newColorBrush = new SolidColorBrush( Color.FromArgb(255, Convert.ToByte(255-color.R), Convert.ToByte(255-color.G),Convert.ToByte(255-color.B)));
-        //    return newColorBrush;
-        //}
-
         public SolidColorBrush InvertColor(Color c)
         {
-
-            //var l = 0.2126 * c.ScR + 0.7152 * c.ScG + 0.0722 * c.ScB;
-            //return l < 0.5 ? Brushes.White : Brushes.Black;
             double Y = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B;
             var color = (Y/255.0) > 0.5 ? Colors.Black : Colors.White;
-            //var color = Color.FromArgb(255, c.R > 127 ? (byte)0 : (byte)255, c.G > 127 ? (byte)0 : (byte)255, c.B > 127 ? (byte)0 : (byte)255);
+
             return new SolidColorBrush(color);
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             await GetFoldersAsync();
+        }
+
+        private async void ChangeButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SelectBaseFolder();
         }
     }
 }
