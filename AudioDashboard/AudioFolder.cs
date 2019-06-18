@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 
@@ -24,7 +25,7 @@ namespace AudioDashboard
                 _name = splittedName[0];
                 if (splittedName.Length == 2 && splittedName[1].IndexOf('#') >= 0)
                 {
-                    var c = System.Drawing.Color.FromArgb(int.Parse(splittedName[1].Replace("#", ""), NumberStyles.HexNumber));
+                    var c = System.Drawing.Color.FromArgb(int.Parse(splittedName[1].Replace("#", "FF"), NumberStyles.HexNumber));
                     _backgroundColor = new SolidColorBrush(Color.FromArgb(c.A, c.R, c.G, c.B));
                 }
             }
@@ -41,5 +42,6 @@ namespace AudioDashboard
     public class AudioFile : FileBase
     {
         public string Extension { get; set; }
+        public StorageFile File { get; set; }
     }
 }

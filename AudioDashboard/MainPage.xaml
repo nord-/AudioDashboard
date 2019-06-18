@@ -15,21 +15,33 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Text="KATALOGER" x:Name="PaneHeader" Margin="60,12,0,0" Style="{StaticResource BaseTextBlockStyle}"/>
                 <ListView x:Name="NavLinksList" Margin="0,12,0,0" SelectionMode="None" Grid.Row="1" VerticalAlignment="Stretch"
-                     IsItemClickEnabled="True"
-                    ItemsSource="{x:Bind FolderLinks}">
+                     IsItemClickEnabled="True" ItemClick="NavLinksList_ItemClick" ItemsSource="{x:Bind FolderLinks}">
                     <ListView.ItemTemplate>
                         <DataTemplate x:Name="AudioFolderTemplate" x:DataType="local:AudioFolder">
-                            <StackPanel Orientation="Vertical" Height="Auto" Padding="12" AutomationProperties.Name="{x:Bind Name}" Background="{x:Bind BackgroundColor}">
+                            <StackPanel Orientation="Vertical" Height="Auto" Padding="12" AutomationProperties.Name="{x:Bind Name}">
                                 <TextBlock Text="{x:Bind Name}" Style="{ThemeResource BaseTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseHighBrush}" />
                                 <TextBlock Text="{x:Bind FileCount}" FontSize="12" Style="{ThemeResource BodyTextBlockStyle}" Foreground="{ThemeResource SystemControlPageTextBaseMediumBrush}" />
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <!--ItemTemplate="{StaticResource NavLinkItemTemplate}" ItemClick="NavLinksList_ItemClick"  />-->
+                <Button Grid.Row="2" Margin="14,24,0,24" Click="RefreshButton_Click">
+                    <StackPanel Orientation="Horizontal"  >
+                        <SymbolIcon Symbol="Refresh" />
+                        <TextBlock Text="Refresh" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Row="2" Margin="0,24,14,24" HorizontalAlignment="Right" Click="ChangeButton_Click">
+                    <StackPanel Orientation="Horizontal"  >
+                        <SymbolIcon Symbol="OpenFile" />
+                        <TextBlock Text="Change" Margin="24,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
             </Grid>
         </SplitView.Pane>
 
@@ -37,16 +49,17 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock Text="LJUDKLIPP" Margin="12,12,0,0" Style="{StaticResource BaseTextBlockStyle}"/>
-            <VariableSizedWrapGrid Orientation="Horizontal" ItemWidth="160" ItemHeight="160" Grid.Row="1" Margin="10">
+            <VariableSizedWrapGrid x:Name="AudioButtonGrid" Orientation="Horizontal" ItemWidth="160" ItemHeight="160" Grid.Row="1" Margin="10">
                 <VariableSizedWrapGrid.ChildrenTransitions>
                     <TransitionCollection>
                         <EntranceThemeTransition IsStaggeringEnabled="True" />
                     </TransitionCollection>
                 </VariableSizedWrapGrid.ChildrenTransitions>
-                <Button x:Name="audio1button" Width="150" Height="150" Background="Red" Foreground="White" Content="Audio 1" FontSize="32" Click="Audio1button_Click" />
             </VariableSizedWrapGrid>
+            <MediaPlayerElement Grid.Row="2" AreTransportControlsEnabled="True" MaxHeight="200" x:Name="AudioMediaPlayer" />
         </Grid>
 
     </SplitView>

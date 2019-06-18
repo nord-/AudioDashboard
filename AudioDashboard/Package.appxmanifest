@@ -7,15 +7,15 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="1d036ff2-4965-4451-adc9-f6182abe85cd"
-    Publisher="CN=ricka"
-    Version="1.0.0.0" />
+    Name="AudioDashboard-package"
+    Publisher="CN=Rickard Nord, O=Storysoft, C=SE"
+    Version="1.0.5.0" />
 
   <mp:PhoneIdentity PhoneProductId="1d036ff2-4965-4451-adc9-f6182abe85cd" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>AudioDashboard</DisplayName>
-    <PublisherDisplayName>ricka</PublisherDisplayName>
+    <PublisherDisplayName>Rickard Nord</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -32,13 +32,16 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="AudioDashboard.App">
       <uap:VisualElements
-        DisplayName="AudioDashboard"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="AudioDashboard"
-        BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        DisplayName="Audio Dashboard"
+        Description="Audio Dashboard"
+        BackgroundColor="transparent"
+        Square44x44Logo="Assets\fct-nobackground.png"
+        Square150x150Logo="Assets\Square150x150Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" Square71x71Logo="Assets\SmallTile.png"/>
+        <uap:InitialRotationPreference>
+          <uap:Rotation Preference="landscape"/>
+          <uap:Rotation Preference="landscapeFlipped"/></uap:InitialRotationPreference>
+        <uap:SplashScreen Image="Assets\SplashScreen.png"/>
       </uap:VisualElements>
     </Application>
   </Applications>

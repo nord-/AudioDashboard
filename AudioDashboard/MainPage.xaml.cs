@@ -1,31 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Media.Core;
+using Windows.Storage.Streams;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace AudioDashboard
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
         private const string FolderToken = "PickedFolderToken";
         public ObservableCollection<AudioFolder> FolderLinks { get; private set; } = new ObservableCollection<AudioFolder>();
+        private string _fileLoaded = "";
 
         public MainPage()
         {
@@ -42,9 +34,66 @@ namespace AudioDashboard
             }
         }
 
-        private async void Audio1button_Click(object sender, RoutedEventArgs e)
+        private async void NavLinksList_ItemClick(object sender, ItemClickEventArgs e)
         {
-            await SelectBaseFolder();
+            await RefreshAudioFiles((AudioFolder)e.ClickedItem);
+        }
+
+        private async Task RefreshAudioFiles(AudioFolder clickedItem)
+        {
+            AudioButtonGrid.Children.Clear();
+            if (clickedItem != null)
+            {
+                foreach (var file in clickedItem.Files)
+                {
+                    // load files into memory
+                    var memoryStream = new InMemoryRandomAccessStream();
+                    using (var inputStream = await file.File.OpenReadAsync())
+                    {
+                        await RandomAccessStream.CopyAsync(inputStream, memoryStream);
+                    }
+
+                    // <Button Content     ="Name" Height="150" Width="150" Background="Red" Foreground="White" FontSize="24" />
+                    var button = new Button { Height = 150, Width = 150, FontSize = 24 };
+                    // <TextBlock Text     ="Customer Locations" TextWrapping="Wrap" />
+                    button.Content = new TextBlock { Text = file.Name, TextWrapping = TextWrapping.WrapWholeWords };
+                    button.Background = clickedItem.BackgroundColor;
+                    button.Foreground = InvertColor(clickedItem.BackgroundColor.Color);
+                    button.BorderBrush = new SolidColorBrush(Colors.White);
+                    button.Tag = memoryStream;
+                    button.Click += AudioButton_Click;
+                    button.ContextRequested += AudioButton_ContextRequested;
+                    AudioButtonGrid.Children.Add(button);
+                }
+            }
+        }
+
+        private void AudioButton_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            var b = sender as Button;
+            LoadMediaFromTag(b);
+            Debug.WriteLine(_fileLoaded);
+        }
+
+        private void LoadMediaFromTag(Button b)
+        {
+            AudioMediaPlayer.AutoPlay = false;
+            AudioMediaPlayer.Source = MediaSource.CreateFromStream((InMemoryRandomAccessStream)b.Tag, "audio/mpeg");
+            _fileLoaded = ((TextBlock)b.Content).Text;
+        }
+
+        private void AudioButton_Click(object sender, RoutedEventArgs e)
+        {
+            var b = sender as Button;
+            Debug.WriteLine($"{_fileLoaded} {((TextBlock)b.Content).Text}");
+
+            if (AudioMediaPlayer.Source == null || ((MediaSource)AudioMediaPlayer.Source).State != MediaSourceState.Opened
+                || _fileLoaded != ((TextBlock)b.Content).Text)
+            {
+                LoadMediaFromTag(b);
+            }
+
+            AudioMediaPlayer.MediaPlayer.Play();
         }
 
         private async Task GetFoldersAsync()
@@ -68,7 +117,8 @@ namespace AudioDashboard
                     {
                         Name      = p.Name,
                         Path      = p.Path,
-                        Extension = p.FileType
+                        Extension = p.FileType,
+                        File      = p
                     }).ToList()
                 };
                 FolderLinks.Add(folder);
@@ -93,6 +143,25 @@ namespace AudioDashboard
             {
                 Windows.Storage.AccessCache.StorageApplicationPermissions.FutureAccessList.Remove(FolderToken);
             }
+        }
+
+        public SolidColorBrush InvertColor(Color c)
+        {
+            double Y = 0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B;
+            var color = (Y/255.0) > 0.5 ? Colors.Black : Colors.White;
+
+            return new SolidColorBrush(color);
+        }
+
+        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            await GetFoldersAsync();
+            await RefreshAudioFiles(null);
+        }
+
+        private async void ChangeButton_Click(object sender, RoutedEventArgs e)
+        {
+            await SelectBaseFolder();
         }
     }
 }
