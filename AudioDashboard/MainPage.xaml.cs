@@ -42,26 +42,29 @@ namespace AudioDashboard
         private async Task RefreshAudioFiles(AudioFolder clickedItem)
         {
             AudioButtonGrid.Children.Clear();
-            foreach (var file in clickedItem.Files)
+            if (clickedItem != null)
             {
-                // load files into memory
-                var memoryStream = new InMemoryRandomAccessStream();
-                using (var inputStream = await file.File.OpenReadAsync())
+                foreach (var file in clickedItem.Files)
                 {
-                    await RandomAccessStream.CopyAsync(inputStream, memoryStream);
-                }
+                    // load files into memory
+                    var memoryStream = new InMemoryRandomAccessStream();
+                    using (var inputStream = await file.File.OpenReadAsync())
+                    {
+                        await RandomAccessStream.CopyAsync(inputStream, memoryStream);
+                    }
 
-                // <Button Content     ="Name" Height="150" Width="150" Background="Red" Foreground="White" FontSize="24" />
-                var button             = new Button { Height = 150, Width = 150, FontSize = 24 };
-                // <TextBlock Text     ="Customer Locations" TextWrapping="Wrap" />
-                button.Content         = new TextBlock { Text = file.Name, TextWrapping = TextWrapping.WrapWholeWords };
-                button.Background      = clickedItem.BackgroundColor;
-                button.Foreground      = InvertColor(clickedItem.BackgroundColor.Color);
-                button.BorderBrush     = new SolidColorBrush(Colors.White);
-                button.Tag             = memoryStream;
-                button.Click          += AudioButton_Click;
-                button.ContextRequested += AudioButton_ContextRequested;
-                AudioButtonGrid.Children.Add(button);
+                    // <Button Content     ="Name" Height="150" Width="150" Background="Red" Foreground="White" FontSize="24" />
+                    var button = new Button { Height = 150, Width = 150, FontSize = 24 };
+                    // <TextBlock Text     ="Customer Locations" TextWrapping="Wrap" />
+                    button.Content = new TextBlock { Text = file.Name, TextWrapping = TextWrapping.WrapWholeWords };
+                    button.Background = clickedItem.BackgroundColor;
+                    button.Foreground = InvertColor(clickedItem.BackgroundColor.Color);
+                    button.BorderBrush = new SolidColorBrush(Colors.White);
+                    button.Tag = memoryStream;
+                    button.Click += AudioButton_Click;
+                    button.ContextRequested += AudioButton_ContextRequested;
+                    AudioButtonGrid.Children.Add(button);
+                }
             }
         }
 
@@ -150,9 +153,10 @@ namespace AudioDashboard
             return new SolidColorBrush(color);
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private async void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
             await GetFoldersAsync();
+            await RefreshAudioFiles(null);
         }
 
         private async void ChangeButton_Click(object sender, RoutedEventArgs e)
